@@ -13,6 +13,7 @@ import numpy as np
 '''
 
 def true_or_false():
+    return False
     return bool(random.randint(0, 1))
 
 def main():
@@ -71,14 +72,35 @@ def main():
 
             instance = img_data[miny:maxy, minx:maxx]
             # TODO soft
-            croped_mask = cv2.merge([croped_mask, croped_mask, croped_mask])
-            instance = cv2.bitwise_and(instance, croped_mask)
+            # croped_mask = cv2.merge([croped_mask, croped_mask, croped_mask])
+            # instance = cv2.bitwise_and(instance, croped_mask)
             background_data = cv2.imread(os.path.join(img_path, background['file_name']), cv2.IMREAD_UNCHANGED)
-            background_data = cv2.bitwise_and(background_data, cv2.bitwise_not(new_mask))
-            background_data[new_y:new_y+mask_h,new_x:new_x+mask_w] = cv2.add(background_data[new_y:new_y+mask_h,new_x:new_x+mask_w], instance)
+            # new_background = cv2.bitwise_and(background_data, cv2.bitwise_not(new_mask))
+            # new_background[new_y:new_y+mask_h,new_x:new_x+mask_w] = cv2.add(new_background[new_y:new_y+mask_h,new_x:new_x+mask_w], instance)
             # TODO save img and mask
-            cv2.imshow('d1', new_mask)
+            # background_data[new_mask == 0] = 0
+            # blurred_image = cv2.blur(background_data, ksize=(3,3))
+            # blurred_mask = cv2.blur(new_mask,ksize=(3,3))
+            # result = blurred_image / blurred_mask
+            
+            # cv2.imshow('d2', result)
+            print('\n')
+            print('background_data: ',background_data.shape)
+            print('mask_h: ',mask_h, 'mask_w: ',mask_w)
+            print('new_y: ',new_y, 'new_x: ',new_x)
+            print('p1: ',new_y+(mask_h//2),'p2: ', new_x+(mask_w//2))
+            print('instance: ', instance.shape)
+            print('croped_mask: ', croped_mask.shape)
+
+
+            new_background = cv2.seamlessClone(img_data, background_data, mask, (new_y+(mask_h//2), new_x+(mask_w//2)), flags=cv2.MONOCHROME_TRANSFER)
+            
+            # new_background = cv2.seamlessClone(src = img_data, dst = background_data, mask = mask, p=(background_data.shape[0]//2, background_data.shape[1]//2), flags=cv2.MONOCHROME_TRANSFER)
+            cv2.imshow('d1', croped_mask)
+            cv2.imshow('d111', new_mask)
+            cv2.imshow('d1.1', instance)
             cv2.imshow('d2', background_data)
+            cv2.imshow('d3', new_background)
             cv2.waitKey(0)
         # break
 
