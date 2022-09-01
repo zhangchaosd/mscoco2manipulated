@@ -11,9 +11,8 @@ import numpy as np
 └─val2017
 '''
 
-def main(subset='val2017'):
+def main(dataset_path = '/Users/zhangchao/datasets/MSCOCO2017', subset='val2017'):
     random.seed('0101')
-    dataset_path = '/Users/zhangchao/datasets/MSCOCO2017'
     img_path = os.path.join(dataset_path, subset)
     manipulated_path = os.path.join(dataset_path, subset + '_manipulated')
     mask_path = os.path.join(dataset_path, subset + '_manipulated_masks')
@@ -22,7 +21,7 @@ def main(subset='val2017'):
     if not os.path.exists(mask_path):
         os.makedirs(mask_path)
 
-    coco = COCO(os.path.join(dataset_path, 'annotations', 'instances_val2017.json'))
+    coco = COCO(os.path.join(dataset_path, 'annotations', 'instances_'+ subset +'.json'))
     imgIds = coco.getImgIds()
     print('Total images: ', len(imgIds))
 
@@ -67,7 +66,7 @@ def main(subset='val2017'):
             background_data = cv2.imread(os.path.join(img_path, background['file_name']), cv2.IMREAD_COLOR)
 
             if croped_mask.shape[0] * croped_mask.shape[1] < 1000 or random.randint(1, 5) == 1:  # just add
-                # if croped_mask.shape[0]*croped_mask.shape[1]<1000:
+                # if croped_mask.shape[0] * croped_mask.shape[1] < 1000:
                     # print('Use add because too small')
                 # else:
                     # print('Use add because prob')
@@ -75,10 +74,11 @@ def main(subset='val2017'):
                 new_background[new_y:new_y + mask_h, new_x:new_x + mask_w] = cv2.add(new_background[new_y:new_y + mask_h, new_x:new_x + mask_w], instance)
             else:
                 flag = np.random.choice([cv2.MONOCHROME_TRANSFER, cv2.NORMAL_CLONE, cv2.MIXED_CLONE], p=[.45, .45, .1])  # Poison blend
-                new_background = cv2.seamlessClone(instance, background_data, croped_mask, ( new_x + (mask_w // 2), new_y + (mask_h // 2)), flags=flag) ## NORMAL_CLONE MIXED_CLONE
+                new_background = cv2.seamlessClone(instance, background_data, croped_mask, ( new_x + (mask_w // 2), new_y + (mask_h // 2)), flags=flag)  ## NORMAL_CLONE MIXED_CLONE
             new_file_name = os.path.join(manipulated_path, os.path.splitext(file_name)[0]) + '_f' + random.choice(['.png', '.jpg'])
             cv2.imwrite(new_file_name, new_background)
             cv2.imwrite(os.path.join(mask_path, os.path.splitext(file_name)[0]) + '_m.png', new_mask)
 
 if __name__ == '__main__':
-    main()
+    main(dataset_path = '/Users/zhangchao/datasets/MSCOCO2017', subset='train2017')
+    main(dataset_path = '/Users/zhangchao/datasets/MSCOCO2017', subset='val2017')
